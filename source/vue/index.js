@@ -1,5 +1,6 @@
 import {initState} from './observe'
 import Watcher from "./observe/watcher";
+import {util, query, compiler} from './util'
 
 // Vuez中用户传入的原始数据
 function Vue(options) {
@@ -20,12 +21,6 @@ Vue.prototype._init = function (options) {
     }
 }
 
-function query(el) {
-    if (typeof el === 'string') {
-        return document.querySelector(el)
-    }
-    return el
-}
 
 Vue.prototype._update = function () {
     // 用户入数据,更新视图
@@ -40,7 +35,7 @@ Vue.prototype._update = function () {
         node.appendChild(firstChild)   // appendChild有移动的的功能
     }
     // 对文本进行替换处理
-
+    compiler(node, vm)
     el.appendChild(node)
     // 需要匹配{{ }} 进行替换
 }
