@@ -1,3 +1,4 @@
+import {pushTarget, popTarget} from './deep'
 // 每一个watcher都要有一个唯一表示
 let id = 0
 
@@ -17,15 +18,37 @@ class Watcher {
         }
         this.cb = cb
         this.opts = opts
+        this.deps = [];
+        this.depsId = new Set()
         this.id = id++
         this.get()// 默认watcher会调用自身的get方法
     }
 
     get() {
-        this.getter()//让当前传入的函数执行
+        pushTarget(this)  // 渲染watcher Dep.target = watcher   数据变化了需要让wathcer重新执行
+        this.getter()//让当前传入的函数执行 默认会调用
+        popTarget()
+    }
 
+    addDep(dep) {
+        // 同一个watcher,不应该重复记住dep
+        let id = dep.id
+        if (!this.depsId.has(id)) {  // 保证ID不重复
+            this.depsId.add(id)
+            this.deps.push(dep)     // 让watcher记住了当前的dep
+            dep.addSub(this)        // 让dep记住当前的watcher
+        }
+    }
+
+    update() {
+        this.get()
     }
 }
 
 // 渲染使用,计算属性需要使用,$watch也需要使用
 export default Watcher
+
+
+/**
+ *1. 首先创建一个渲染watcher
+ **/

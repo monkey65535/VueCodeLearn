@@ -56,6 +56,8 @@ Vue.prototype.$mount = function () {
     }
     // 渲染watcher
     new Watcher(vm, updateComponent)        //默认会调用updateComponent方法
+    //如果数据更新了
+    //需要每个数据,更改了之后重新的渲染  依赖收集
 }
 
 export default Vue
