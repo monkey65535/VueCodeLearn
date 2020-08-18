@@ -10,7 +10,10 @@ export const util = {
     },
     // 编译文版 替换调{{}}
     compilerText(node, vm) {
-        node.textContent = node.textContent.replace(defaultRE, (...args) => {
+        if(!node.expr){
+            node.expr = node.textContent        // 给节点添加了一个自定义属性,为了方便后续的更新操作
+        }
+        node.textContent = node.exp.replace(defaultRE, (...args) => {
             return util.getValue(vm, args[1])
         })
     }

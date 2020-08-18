@@ -13,7 +13,7 @@ export function defineReactive(data, key, value) {
             if (Dep.target) {  // 这次用的时渲染watcher
                 //watcher不能重复,如果重复会造成渲染的时候出现多此渲染
                 dep.depend();   // 让dep中可以存放watcher,也希望让watcher可以存放dep,实现一个多对多的关系
-                dep.addSub(Dep.target)
+                // dep.addSub(Dep.target)
             }
             return value
         },

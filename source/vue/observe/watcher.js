@@ -40,9 +40,69 @@ class Watcher {
         }
     }
 
-    update() {
+    update() {      //如果立即调用get 会导致页面刷新 异步来更新
+        queueWatcher(this)
+    }
+
+    run() {
         this.get()
     }
+}
+
+let has = {}
+let queue = []
+
+function flushQueue() {
+    // 当前这一轮全部更新厚，再次调用run进行执行
+    queue.forEach(watcher => watcher.run())
+    // 恢复正常，准备下一轮更新
+    has = {}
+    queue = []
+}
+
+// 对重复的watcher进行过滤
+function queueWatcher(watcher) {
+
+    let id = watcher.id
+    if (has[id] = null) {
+        has[id] = true
+        queue.push(watcher)     // 相同的watcher只会存一个到quque中
+
+        // 延迟清空队列
+        nextTick(flushQueue)
+    }
+}
+
+let callbacks = []
+
+function flushCallbacks() {
+    callbacks.forEach(cb => cb())
+    callbacks = []
+}
+
+function nextTick(cb) {
+    callbacks.push(cb)
+    // 异步刷新callback 需要获取一个异步的方法
+    // 先采用一个微任务
+    // 在采用宏任务
+    let timerFunc = () => {
+        flushCallbacks()
+    }
+    if (Promise) {
+        return Promise.resolve()
+            .then(timerFunc)
+    }
+    if (MutationObserver) {
+        let observe = new MutationObserver(timerFunc)
+        let textNode = document.createTextNode(1)
+        observe.observe(textNode, {characterData: true})
+        textNode.textContent(2)
+        return
+    }
+    if (setImmediate) {
+        return setImmediate(timerFunc)
+    }
+    setTimeout(timerFunc, 0)
 }
 
 // 渲染使用,计算属性需要使用,$watch也需要使用
